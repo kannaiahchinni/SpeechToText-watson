@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Watson Speech to Text client example</title>
+    <link rel="stylesheet" href="https://watson-speech.mybluemix.net/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style type="text/css" media="screen">
+
+    .col-md-6{
+
+        width:49%;
+        float: left;
+
+    }
+    button{
+      padding:10px;
+      border:none;
+      background:#489CDF; color:#fff;
+    }
+        .containerr{
+            
+            width:80%; margin-left:10%; margin-right: 10%;
+            
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="containerr">
+       
+
+        <div class="col-md-6">
+
+        <section>
+            <h2>Transcribe from Microphone</h2>
+            <button id="button">Start Microphone Transcription</button>
+            <button id="stop">Stop</button>
+
+            <h2>Output:</h2>
+            <div id="output">  output will replace this text </div>
+        </section>
+
+        </div>
+
+        <div class="col-md-6">
+        <section>
+          
+            <h2>Text to Speech  example </h2>
+
+            <textarea id="textContent" rows="6" cols="80">Hello world.. How you doing.. bla bla bla...what is your fullName</textarea>
+            <button id="Txtbutton">Speech Text</button>
+
+        </section>
+
+        </div>
+
+
+        <script src="watson-speech.js"></script>
+        <!-- window.fetch pollyfill for IE/Edge & Older Chrome/FireFox -->
+        <script src="fetch.js"></script>
+
+        <script type="text/javascript">
+document.querySelector('#button').onclick = function () {
+
+  fetch('http://signinevents.com/test/streamline.php?type=stt')
+  .then(function(response) {
+      return response.text();
+  }).then(function (token) { 
+        
+    var stream = WatsonSpeech.SpeechToText.recognizeMicrophone({
+      token: token,
+      object_mode: false // default
+    });
+
+    stream.setEncoding('utf8'); // get text instead of Buffers for on data events
+
+    stream.on('data', function(data) {
+    
+       // document.querySelector("output").appendChild = data;
+      //appendOuput(data);
+      console.log(data);
+    });
+
+    stream.on('error', function(err) {
+        console.log(err);
+    });
+
+    document.querySelector('#stop').onclick = stream.stop.bind(stream);
+
+  }).catch(function(error) {
+      console.log(error);
+  }); 
+    
+    
+   
+    
+    
+    
+    
+};
+
+
+
+document.querySelector('#Txtbutton').onclick = function () {
+
+  fetch('http://signinevents.com/test/streamline.php?type=tts')
+    .then(function(response) {
+      return response.text();
+    }).then(function (token) {
+
+      WatsonSpeech.TextToSpeech.synthesize({
+        text: document.querySelector('#textContent').value,
+        token: token
+      });
+    });
+};
+
+
+ function appendOuput(text){
+        
+        
+        var para = document.createElement("P");                       // Create a <p> node
+        var t = document.createTextNode(text);      // Create a text node
+        para.appendChild(t);                                          // Append the text to <p>
+        document.getElementById("output").appendChild(para); 
+        
+    }
+
+</script>
+
+    </div>
+</body>
+
+</html>
